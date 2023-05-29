@@ -115,4 +115,9 @@ class ActoController extends Controller
 
         return redirect(route('acto.index'));
     }
+
+    public function allEvent(){
+        $listaActos = Acto::all();
+        return view('events/allEvent', compact('listaActos'));
+    }
 }

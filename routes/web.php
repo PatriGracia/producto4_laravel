@@ -53,9 +53,11 @@ Route::controller(LoginController::class)->group(function(){
 });
 
 Route::controller(ActoController::class)->group(function(){
+    Route::get('/acto/allEvent', 'allEvent')->name('acto.allEvent');
+
     Route::get('/acto', 'index')->middleware('auth')->name('acto.index');
 
-    Route::post('/acto/showEvent', 'showEvent')->middleware('auth')->name('acto.showEvent');
+    Route::post('/acto/showEvent', 'showEvent')->name('acto.showEvent');
     
     Route::post('/acto/datoInsc', 'datoInscribir')->middleware('auth')->name('acto.datoInscribir');
 

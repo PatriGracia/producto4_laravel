@@ -9,6 +9,9 @@
 @section('content')
 
 <div class="col-auto d-flex">
+                    <a href="{{route('acto.allEvent')}}">
+                        <button class="btn btn-primary eventos"> Eventos </button>
+                    </a>
                     <button class="btn btn-primary registro" onclick="location.href='registro'"> Registro </button> 
                     <button class="btn btn-primary acceso" onclick="location.href='login'"> Login </button>
                 </div>

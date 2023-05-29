@@ -60,6 +60,11 @@ a {
     font-size: medium;
 }
 
+.eventos {
+    background-color: #65A5BD;
+    color: white;
+}
+
 .registro {
     background-color: rgba(0, 128, 0, 0.411);
     color: white;

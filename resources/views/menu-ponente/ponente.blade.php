@@ -38,6 +38,8 @@
                                 <th>Titulo</th>
                                 <th>Fecha</th>
                                 <th>Hora</th>
+                                <th></th> <!-- Columna para el botón de Ver Evento -->
+                                <th></th> <!-- Nueva columna para el botón de Subir Archivo -->
                             </tr>
                         </thead>
                         <tbody>
@@ -68,15 +70,26 @@
                                 </tr>
                             @endforeach
                             @foreach($listaActosPonentes as $listaActosPonente)
-			                    <tr  style='background-color:#F79D56'>
+                                <tr  style='background-color:#F79D56'>
                                     <td>{{ $listaActosPonente->Titulo }}</td>
                                     <td>{{ $listaActosPonente->Fecha }}</td>
                                     <td>{{ $listaActosPonente->Hora }}</td>
-                                    <td><form action="{{route('acto.showEvent')}}" method="POST">
-                                        @csrf
-                                        <input name="id_acto" type="hidden" value="{{$listaActosPonente->Id_acto}}">
-                                        <button type="submit" class="btn btn-light">Ver evento</button>
-                                    </form>
+                                    <td>
+                                        <form action="{{route('acto.showEvent')}}" method="POST">
+                                            @csrf
+                                            <input name="id_acto" type="hidden" value="{{$listaActosPonente->Id_acto}}">
+                                            <button type="submit" class="btn btn-light">Ver evento</button>
+                                        </form>
+                                    </td>
+                                    <td>
+                                        <!-- Botón para subir un archivo solo si el evento ya ha terminado -->
+                                        @if($listaActosPonente->Fecha < now())
+                                            <form action="{{ route('documento.subir', $listaActosPonente->Id_acto) }}" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="file" name="documento" accept=".pdf,.doc,.docx,.txt">
+                                                <button type="submit" class="btn btn-light">Subir archivo</button>
+                                            </form>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
@@ -116,6 +129,4 @@
         </div>
     </div>
 
-
 @endsection
-

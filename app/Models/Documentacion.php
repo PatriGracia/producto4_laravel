@@ -9,7 +9,9 @@ class Documentacion extends Model
 {
     use HasFactory;
 
-    protected $table = "Documentacion";
-    protected $primaryKey = 'Id_presentacion';
-    public $timestamps = false;
+    protected $table = 'Documentacion';
+
+    protected $fillable = [
+        'Id_presentacion', 'Id_acto', 'Localizacion_documentacion', 'Orden', 'Id_persona', 'Titulo_documento'
+    ];
 }

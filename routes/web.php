@@ -61,7 +61,7 @@ Route::controller(ActoController::class)->group(function(){
     
     Route::post('/acto/datoInsc', 'datoInscribir')->middleware('auth')->name('acto.datoInscribir');
 
-    Route::post('/acto/inscribirDesinscribir', 'inscribirDesinscribir')->middleware('auth')->name('acto.inscribirDesinscribir');
+    Route::post('/acto/inscribirDesinscribir', 'inscribirDesinscribir')->name('acto.inscribirDesinscribir');
 
     Route::post('/acto/create', 'create')->middleware('auth')->name('acto.create');
 

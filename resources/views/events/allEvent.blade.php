@@ -17,12 +17,8 @@
                 @endauth! </h1>
             </div>
             <div class="col-auto d-flex">
-                <a href="{{route('perfil.index')}}">
-                    <button class="btn btn-primary perfil"> Perfil </button> 
-                </a> 
-                <a href="{{route('logout')}}">
-                    <button class="btn btn-primary log-out" id="logoutButton">Log Out</button>
-                </a>
+                <button class="btn btn-primary acceso" onclick="location.href='{{route('login')}}'"> Login </button>
+                <button class="btn btn-primary volver ml-2" onclick="location.href='{{route('home')}}'"> Volver </button>
             </div>
         </div>
     </div>

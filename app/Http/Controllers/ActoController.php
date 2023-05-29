@@ -19,6 +19,7 @@ class ActoController extends Controller
         $query1 = Inscritos::select('id_acto')->where('Id_persona','=', $id)->get();
         $query2 = Lista_Ponentes::select('Id_acto')->where('Id_persona','=', $id)->get();
 
+        
         $listaActos = Acto::whereNotIn('Id_acto', $query1)->whereNotIn('Id_acto', $query2)->orderBy('Fecha', 'asc')->get();
         $listaActosInscritos = Acto::whereIn('Id_acto', $query1)->orderBy('Fecha', 'asc')->get();
         $listaActosPonentes = Acto::whereIn('Id_acto', $query2)->orderBy('Fecha', 'asc')->get();
@@ -52,24 +53,38 @@ class ActoController extends Controller
     }
 
     public function inscribirDesinscribir(Request $request){
-        if($request->input('inscribirDesinscribir') === 'inscribirse'){
-            $inscrito = new Inscritos;
-            $inscrito->Id_persona = $request->input('id_persona');
-            $inscrito->id_acto = $request->input('id_acto');
-            $inscrito->Fecha_inscripcion = date('Y-m-d H:i:s');
-            $inscrito->save();
-            echo "<script>alert('Confirmada la inscripción al acto')</script>";
-        }else{
-            $delete = Inscritos::where('Id_persona', '=', $request->input('id_persona'))->where('id_acto', '=', $request->input('id_acto'))->delete();
-            echo "<script>alert('Eliminada la inscripción al acto')</script>";
-        }
-        $acto = Acto::where('Id_acto', '=', $request->input('id_acto'))->first();
-        $query3 = Inscritos::select('Id_persona')->where('id_acto', '=', $request->id_acto);
-        $asistentes = Usuario::whereIn('Id_Persona', $query3)->get();
-        $no_inscritos = Usuario::whereNotIn('Id_Persona', $query3)->get();
+        if(Auth::check()){
+            $ya_inscritos = Inscritos::where('id_acto', '=', $request->input('id_acto'))->count();
+            $num_asistentes = Acto::where('Id_acto', '=', $request->input('id_acto'))->first();
+            $maximo_inscritos = $num_asistentes->Num_asistentes;
+            if($request->input('inscribirDesinscribir') === 'inscribirse'){
+                if($ya_inscritos < $maximo_inscritos){
+                    $inscrito = new Inscritos;
+                    $inscrito->Id_persona = $request->input('id_persona');
+                    $inscrito->id_acto = $request->input('id_acto');
+                    $inscrito->Fecha_inscripcion = date('Y-m-d H:i:s');
+                    $inscrito->save();
+                    echo "<script>alert('Confirmada la inscripción al acto')</script>";
+                }
+                else{
+                    echo "<script>alert('No es posible la inscripción. El aforo está completo')</script>";
+                }
+                
+            }else{
+                $delete = Inscritos::where('Id_persona', '=', $request->input('id_persona'))->where('id_acto', '=', $request->input('id_acto'))->delete();
+                echo "<script>alert('Eliminada la inscripción al acto')</script>";
+            }
+            $acto = Acto::where('Id_acto', '=', $request->input('id_acto'))->first();
+            $query3 = Inscritos::select('Id_persona')->where('id_acto', '=', $request->id_acto);
+            $asistentes = Usuario::whereIn('Id_Persona', $query3)->get();
+            $no_inscritos = Usuario::whereNotIn('Id_Persona', $query3)->get();
 
-        return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos'));
-        
+            return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos'));
+        }else{
+            echo "<script>alert('Inicia sesión o regístrate para Inscribirte')</script>"; 
+            
+            return view('auth/login'); 
+        } 
     }
 
     public function create(Request $request){

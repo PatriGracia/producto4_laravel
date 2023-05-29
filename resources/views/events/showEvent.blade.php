@@ -16,12 +16,13 @@
                 @endauth! </h1>
             </div>
             <div class="col-auto d-flex">
-                <a href="{{route('perfil.index')}}">
-                    <button class="btn btn-primary perfil"> Perfil </button> 
-                </a> 
+                
+                <button class="btn btn-primary acceso" onclick="location.href='{{route('login')}}'"> Login </button>
+                @auth
                 <a href="{{route('logout')}}">
                     <button class="btn btn-primary log-out" id="logoutButton">Log Out</button>
                 </a>
+                @endauth
             </div>
         </div>
     </div>
@@ -52,41 +53,58 @@
                         <td>{{ $acto->Descripcion_larga }}</td>
                         <td>{{ $acto->Num_asistentes }}</td>
                         <td>
-                            @auth
+                            @if(Auth::check())
                                 @foreach ($asistentes as $asistente)
                                     <ul>
                                         <li>{{$asistente->Username}}</li>
                                     </ul>
                                 @endforeach
-                            @endauth
+                            @else
+                                Inicia sesión para ver la lista de asistentes
+                                <button class="btn btn-primary acceso" onclick="location.href='{{route('login')}}'"> 
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-check" viewBox="0 0 16 16">
+                                        <path d="M12.5 16a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm1.679-4.493-1.335 2.226a.75.75 0 0 1-1.174.144l-.774-.773a.5.5 0 0 1 .708-.708l.547.548 1.17-1.951a.5.5 0 1 1 .858.514ZM11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+                                        <path d="M8.256 14a4.474 4.474 0 0 1-.229-1.004H3c.001-.246.154-.986.832-1.664C4.484 10.68 5.711 10 8 10c.26 0 .507.009.74.025.226-.341.496-.65.804-.918C9.077 9.038 8.564 9 8 9c-5 0-6 3-6 4s1 1 1 1h5.256Z"/>
+                                    </svg>
+                                </button>
+                            @endif
                         </td>
                     </tr>
 
                     <tr>
-                        @auth
+                        @if(Auth::check())
                             @php
                                 $datoIns = App\Http\Controllers\ActoController::datoInscribir($acto->Id_acto);
                                 
                             @endphp
-                            
-                            @if ($datoIns == null) 
-                                <form method="POST" action="{{route('acto.inscribirDesinscribir')}}">
-                                    @csrf
+                        @else
+                            @php
+                                $datoIns = null;
+                            @endphp
+                        @endif
+                        
+                        @if ($datoIns == null) 
+                            <form method="POST" action="{{route('acto.inscribirDesinscribir')}}">
+                                @csrf
+                                @if(Auth::check())
                                     <input name="id_acto" type="hidden" value="{{$acto->Id_acto}}">
                                     <input name="id_persona" type="hidden" value="{{Auth::user()->Id_Persona}}">
-                                    <button type="submit" name="inscribirDesinscribir" value="inscribirse" class="btn btn-warning">Inscribirse</button>
-                                </form>  
-                            @else
-                                <form method="POST" action="{{route('acto.inscribirDesinscribir')}}">
-                                    @csrf
+                                @endif
+                                <button type="submit" name="inscribirDesinscribir" value="inscribirse" class="btn btn-warning">Inscribirse</button>
+                            </form>  
+                        @else
+                            <form method="POST" action="{{route('acto.inscribirDesinscribir')}}">
+                                @csrf
+                                @if(Auth::check())
                                     <input name="id_acto" type="hidden" value="{{$acto->Id_acto}}">
                                     <input name="id_persona" type="hidden" value="{{Auth::user()->Id_Persona}}">
-                                    <button type="submit" name="inscribirDesinscribir" value="desinscribirse" class="btn btn-warning">Desinscribirse</button>
-                                </form>
-                                
+                                @endif
+                                <button type="submit" name="inscribirDesinscribir" value="desinscribirse" class="btn btn-warning">Desinscribirse</button>
+                            </form>
                             
-                            @endif
-                        @endauth
+                        
+                        @endif
+    
                     </tr>
                 </tbody>
             </table>
@@ -118,12 +136,17 @@
             @endauth
 
             <!-- footer-->
-
-            <form action="{{route('acto.allEvent')}}" method="GET">
-                @csrf 
-               <button type="submit" name="acto.allEvent" class="btn btn-light" style="margin-top: 20px">Volver</button>
-            </form>
-
+            @if(Auth::check())
+                <form action="{{route('acto.index')}}" method="GET">
+                    @csrf 
+                    <button type="submit" name="acto.index" class="btn btn-light" style="margin-top: 20px">Volver</button>
+                </form>
+            @else
+                <form action="{{route('acto.allEvent')}}" method="GET">
+                    @csrf 
+                    <button type="submit" name="acto.allEvent" class="btn btn-light" style="margin-top: 20px">Volver</button>
+                </form>
+            @endif
         </div>
     </div>
 </div>

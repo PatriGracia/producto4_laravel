@@ -99,6 +99,10 @@
             </div>
             
     </div>
+    <form action="{{route('admin')}}" method="GET">
+        @csrf 
+        <button type="submit" name="acto.index" class="btn btn-light" style="margin-left: 200px">Volver</button>
+    </form>
 
     @csrf 
     <button type="submit" name="" class="btn btn-success" data-toggle="modal" data-target="#nuevoActo" style="margin-left: 1200px; margin-top: -65px">Nuevo Acto

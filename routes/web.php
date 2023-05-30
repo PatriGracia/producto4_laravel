@@ -52,17 +52,16 @@ Route::controller(LoginController::class)->group(function(){
     Route::get('/logout', 'logout')->name('logout');
 });
 
-
 Route::controller(ActoController::class)->group(function(){
     Route::get('/acto/allEvent', 'allEvent')->name('acto.allEvent');
-    
+
     Route::get('/acto', 'index')->middleware('auth')->name('acto.index');
 
-    Route::post('/acto/showEvent', 'showEvent')->middleware('auth')->name('acto.showEvent');
+    Route::post('/acto/showEvent', 'showEvent')->name('acto.showEvent');
     
     Route::post('/acto/datoInsc', 'datoInscribir')->middleware('auth')->name('acto.datoInscribir');
 
-    Route::post('/acto/inscribirDesinscribir', 'inscribirDesinscribir')->middleware('auth')->name('acto.inscribirDesinscribir');
+    Route::post('/acto/inscribirDesinscribir', 'inscribirDesinscribir')->name('acto.inscribirDesinscribir');
 
     Route::post('/acto/create', 'create')->middleware('auth')->name('acto.create');
 
@@ -70,8 +69,7 @@ Route::controller(ActoController::class)->group(function(){
 
     Route::post('/acto/delete', 'delete')->middleware('auth')->name('acto.delete');
 
-    Route::get('/actos', [App\Http\Controllers\ActoController::class, 'apiIndex']);
-
+    Route::post('/subir', 'subirArchivo')->middleware('auth')->name('subir');
 });
 
 Route::controller(PonenteController::class)->group(function(){

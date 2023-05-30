@@ -9,6 +9,7 @@ use App\Models\Lista_Ponentes;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
 
 class ActoController extends Controller
 {
@@ -34,54 +35,24 @@ class ActoController extends Controller
         } 
     }
 
-    public function subir(Request $request, $id_acto)
-    {
-        
-        $user = Auth::user();
+    public function apiIndex(){
+        $futureEvents = Acto::join('Tipo_acto', 'Actos.Id_tipo_acto', '=', 'Tipo_acto.Id_tipo_acto')
+                            ->where('Fecha', '>', Carbon::now())
+                            ->get(['Fecha', 'Hora', 'Titulo', 'Descripcion as Tipo', 'Actos.Id_acto']);
 
-        $acto = Acto::findOrFail($id_acto);
+        // Preparar los datos para la respuesta JSON
+        $response = $futureEvents->map(function ($event) {
+            return [
+                'Fecha' => $event->Fecha,
+                'Hora' => $event->Hora,
+                'Titulo' => $event->Titulo,
+                'Tipo' => $event->Tipo,
+                'URL' => route('acto.showEvent', ['id' => $event->Id_acto])
+            ];
+        });
 
-        if ($acto->Fecha > now()) {
-            return back()->withErrors('El evento aún no ha terminado');
-        }
-
-        $ponente = Lista_Ponentes::where('Id_acto', $id_acto)->where('Id_persona', $user->id)->first();
-        if (!$ponente) {
-            return back()->withErrors('No eres un ponente para este evento');
-        }
-
-        $request->validate([
-            'documento' => 'required|mimes:pdf,doc,docx,txt|max:2048',
-        ]);
-
-        if ($request->hasFile('documento')) {
-            if ($request->file('documento')->isValid()) {
-                $nombreDocumento = $request->file('documento')->store('documentos', 'public');
-            } else {
-                $errorCode = $request->file('documento')->getError();
-                dd($errorCode);
-            }
-        } else {
-            dd("No se subió ningún archivo");
-        }
-
-        $nombreDocumento = $request->file('documento')->store('documentos', 'public');
-
-        if (!$nombreDocumento) {
-            return back()->withErrors('El archivo no se ha podido almacenar');
-        }
-
-        Documentacion::create([
-            'Localizacion_documentacion' => $nombreDocumento,
-            'Titulo_documento' => $request->file('documento')->getClientOriginalName(),
-            'Id_acto' => $id_acto,
-            'Id_persona' => $user->id,
-        ]);
-
-        return back()->with('success', 'Documento subido con éxito');
+        return response()->json($response);
     }
-
-
 
     public function showEvent(Request $request){
         $acto = Acto::where('Id_acto', '=', $request->input('id_acto'))->first();

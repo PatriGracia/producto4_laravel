@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ActoController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -19,6 +21,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get("/personas", [PersonasController::class, 'personas']);
+
+Route::get('/actos', [App\Http\Controllers\ActoController::class, 'apiIndex']);
+
 
 
 

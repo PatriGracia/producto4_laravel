@@ -70,6 +70,8 @@ Route::controller(ActoController::class)->group(function(){
     Route::post('/acto/delete', 'delete')->middleware('auth')->name('acto.delete');
 
     Route::post('/subir', 'subirArchivo')->middleware('auth')->name('subir');
+
+    Route::get('/actos', [App\Http\Controllers\ActoController::class, 'apiIndex']);
 });
 
 Route::controller(PonenteController::class)->group(function(){

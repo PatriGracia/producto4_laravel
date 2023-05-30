@@ -10,6 +10,7 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Carbon;
 
 class ActoController extends Controller
 {
@@ -34,6 +35,25 @@ class ActoController extends Controller
         }else{
             return view('menu-ponente/ponente', compact('listaActos', 'listaActosInscritos', 'listaActosPonentes', 'documents'));
         } 
+    }
+
+    public function apiIndex(){
+        $futureEvents = Acto::join('Tipo_acto', 'Actos.Id_tipo_acto', '=', 'Tipo_acto.Id_tipo_acto')
+                            ->where('Fecha', '>', Carbon::now())
+                            ->get(['Fecha', 'Hora', 'Titulo', 'Descripcion as Tipo', 'Actos.Id_acto']);
+
+        // Preparar los datos para la respuesta JSON
+        $response = $futureEvents->map(function ($event) {
+            return [
+                'Fecha' => $event->Fecha,
+                'Hora' => $event->Hora,
+                'Titulo' => $event->Titulo,
+                'Tipo' => $event->Tipo,
+                'URL' => route('acto.showEvent', ['id' => $event->Id_acto])
+            ];
+        });
+
+        return response()->json($response);
     }
 
     public function showEvent(Request $request){

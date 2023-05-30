@@ -14,4 +14,7 @@ class Documentacion extends Model
     protected $fillable = [
         'Id_presentacion', 'Id_acto', 'Localizacion_documentacion', 'Orden', 'Id_persona', 'Titulo_documento'
     ];
+
+    public $timestamps = false;
+
 }

@@ -9,6 +9,7 @@ use App\Models\Lista_Ponentes;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ActoController extends Controller
 {
@@ -24,7 +25,7 @@ class ActoController extends Controller
         $listaActosInscritos = Acto::whereIn('Id_acto', $query1)->orderBy('Fecha', 'asc')->get();
         $listaActosPonentes = Acto::whereIn('Id_acto', $query2)->orderBy('Fecha', 'asc')->get();
 
-        $documents = Documentacion::where('Id_persona', '=', $id)->get();
+        $documents = Documentacion::where('Id_persona', '=', $id)->orderBy('Orden', 'asc')->get();
 
         if($tipo_usuario == 1){
             return view('menu-admin/adminEvents', compact('listaActos', 'listaActosInscritos', 'listaActosPonentes'));
@@ -42,7 +43,9 @@ class ActoController extends Controller
         $asistentes = Usuario::select('Id_usuario', 'Username')->whereIn('Id_Persona', $query3)->get();
         $no_inscritos = Usuario::select('Id_usuario', 'Username')->whereNotIn('Id_Persona', $query3)->get();
 
-        return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos'));
+        $documents = Documentacion::where('Id_acto', '=', $request->id_acto)->orderBy('Orden', 'asc')->get();
+
+        return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos', 'documents'));
     }
 
     public static function datoInscribir($id){
@@ -74,12 +77,15 @@ class ActoController extends Controller
                 $delete = Inscritos::where('Id_persona', '=', $request->input('id_persona'))->where('id_acto', '=', $request->input('id_acto'))->delete();
                 echo "<script>alert('Eliminada la inscripción al acto')</script>";
             }
+
             $acto = Acto::where('Id_acto', '=', $request->input('id_acto'))->first();
             $query3 = Inscritos::select('Id_persona')->where('id_acto', '=', $request->id_acto);
             $asistentes = Usuario::whereIn('Id_Persona', $query3)->get();
             $no_inscritos = Usuario::whereNotIn('Id_Persona', $query3)->get();
 
-            return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos'));
+            $documents = Documentacion::where('Id_acto', '=', $request->id_acto)->orderBy('Orden', 'asc')->get();
+
+            return view('events/showEvent', compact('acto', 'asistentes', 'no_inscritos', 'documents'));
         }else{
             echo "<script>alert('Inicia sesión o regístrate para Inscribirte')</script>"; 
             
@@ -134,5 +140,35 @@ class ActoController extends Controller
     public function allEvent(){
         $listaActos = Acto::all();
         return view('events/allEvent', compact('listaActos'));
+    }
+
+    public function subirArchivo(Request $request){
+        //Recibimos el archivo y lo guardamos en la carpeta storage/app/public
+        //$file = $request->file('archivo');
+        //$file->store('public');
+        //$name = $file->getClientOriginalName();
+        //echo "<script>alert('Archivo subido correctamente')</script>";
+        //dd("subido y guardado");
+        //return $name;
+        $file = $request->file('archivo');
+        $ext = $file->getClientOriginalExtension();
+
+        if($ext == "pdf" || $ext == "doc" || $ext == "docx" || $ext == "txt"){
+            
+            $file_path = $file->store("","local_custom");
+            $documentacion = new Documentacion;
+            $documentacion->Id_acto = $request->id_acto;
+            $documentacion->Localizacion_documentacion = $file_path;
+            $documentacion->Orden = $request->orden;
+            $documentacion->Id_persona = Auth::user()->Id_Persona;
+            $documentacion->Titulo_documento = $file->getClientOriginalName();
+            $documentacion->save();
+
+        }else{
+            echo "<script>alert('Debe subir un archivo .pdf, .doc, .docx o .txt')</script>";
+        }
+
+        return redirect(route('acto.index'));
+        
     }
 }
